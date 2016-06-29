@@ -1,0 +1,93 @@
+//  CLASSROOM MANAGEMENT SYSTEM (OS-X version)
+//
+//  Created by Simone Girardi on 5/04/16.
+//  Copyright © 2016 Simone Girardi. All rights reserved.
+//
+
+—————
+NOTE:
+—————
+This program is able to check a date considering if the year is leap or not.
+It take the file sorted by date and hour
+When the user delete a book, the program create a .bak file to ensure not corrupt file.
+If ./Main_CMS.sh not works, change permissions with chmod + x Main_CMS.sh and retry.
+
+ASSUNPTIONS:
+1) the name of the classroom must be a string without spaces (because avoid problem with grep command in ShowClassroom.sh file)
+   the user can't insert a name with spaces.
+
+COMANDS DESCRIPTION:
+————————————————————————
+Web sites (bibliography)
+————————————————————————
+
+http://ryanstutorials.net
+http://unix.stackexchange.com/questions/39039/get-text-file-word-occurrence-count-of-all-words-print-output-sorted  # for uniq command
+http://unix.stackexchange.com/questions/122390/sort-data-in-descending-order-of-first-column-for-equal-values-use-second-colu  # for sort command 
+http://www.theunixschool.com/2012/06/sed-25-examples-to-delete-line-or.html  # for sed command
+https://users.dimi.uniud.it/~ivan.scagnetto/LABSO/lezione7.pdf # for sed command 2
+http://www.thegeekstuff.com/2008/09/bash-shell-take-control-of-ps1-ps2-ps3-ps4-and-prompt_command/ # for PS3 command
+
+—————————
+GENERALS:
+—————————
+$?
+
+// exit status dell’ultimo comando eseguito dalla shell
+
+————————————
+File BMS.sh
+————————————
+PS3=$'\nPlease enter your choice: '
+
+// PS stands for prompt statement.
+// PS3 stands for Prompt used by “select” inside shell script, it will display the message for each iterante in select loop
+
+——————————————
+File Book.sh
+——————————————
+sort -t ';' -k2,2n -k3,3n $BOOKFILE -o $BOOKFILE
+
+// sort file first by date and if dates are equals, then sort by hour (see web sites for details), and save file.
+// (t) use character SEPARATOR as the field separator when finding the sort keys in each line.
+// (-k) The keydef argument is a restricted sort key field definition. When there are multiple key fields,
+		later keys shall be compared only after all earlier keys compare equal.
+
+—————————————————
+File Functions.sh
+—————————————————
+[[ "$date" =~ ^[0-9]+$ ]]; then..
+
+// (=~) regular expression is matched
+// (^) means at the start of the string
+// (+) means "1 or more of the preceding"
+// ($) indicates the end of the input pattern. 
+
+$(echo ${date:4:2} | sed 's/^0//')
+
+// get a substring as ${“myString”:start:length}
+// (s) mean substitute 
+// (^0) looking for a zero in the beginning of the line
+
+
+grep -i -q -w "$name" "$BOOKFILE"
+
+// match “myString” in “file”
+// (-i) no case sensitive
+// (-q) perform search without print on stdout
+// (-w) search for a word, and to avoid it to match the substrings use -w option
+
+———————————————————————————
+File BookingPerClassroom.sh
+———————————————————————————
+cut -d \; -f1 "$BOOKFILE" | sort -r | uniq -ic | sed 's/^[ \t]*//' | sed 's/ /          /' | sed 's/^/    /'
+
+// cut (-d \;) separated in the input by the field delimiter character
+// cut (-f1)  list specifies fields.
+// sort (-r) reverse the result of comparisons (from min n° of books to max n° of books, and prepare as input for uniq
+// uniq (-i) Case insensitive comparison of lines. (see web sites)
+// uniq (-c)Precede each output line with the count of the number of times the line occurred in the input, followed by a single space.
+
+
+
+
